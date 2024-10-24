@@ -1,0 +1,49 @@
+﻿@model BestellingDetailsViewModel
+@{
+    ViewBag.Title = "Details bestelling";
+}
+
+<div class="form-horizontal">
+    <h4>Details bestelling @Model.Id van klant @Model.Naam</h4>
+
+    <table class="table">
+        <tr>
+            <td>
+                @Html.DisplayNameFor(v => v.Orderlijnen[0].Naam)
+            </td>
+            <td>
+                @Html.DisplayNameFor(v => v.Orderlijnen[0].Aantal)
+            </td>
+            <td>
+                @Html.DisplayNameFor(v => v.Orderlijnen[0].Prijs)
+            </td>
+            <td>
+                Totaal
+            </td>
+        </tr>
+        @foreach (var item in Model.Orderlijnen)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelitem => item.Naam)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelitem => item.Aantal)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelitem => item.Prijs)
+                </td>
+                <td>
+                    @{
+                        var totaal = (decimal)item.Aantal * item.Prijs;
+                    }
+                    @totaal
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div>
+    <a asp-controller="Bestelling" asp-action="Index" class="btn btn-primary">Terug</a>
+</div>

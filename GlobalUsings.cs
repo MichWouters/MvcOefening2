@@ -1,0 +1,12 @@
+﻿global using System.ComponentModel.DataAnnotations;
+global using MVCDemo.Models;
+global using MVCDemo.ViewModels;
+global using MVCDemo.Data;
+global using MVCDemo.Data.Repository;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Mvc;
+global using System.Text.Json.Serialization;
+global using MVCDemo.Data.UnitOfWork;
+global using AutoMapper;
+global using Microsoft.AspNetCore.Mvc.Rendering;
+global using System.Linq.Expressions;

@@ -1,0 +1,124 @@
+﻿@model BestellingCreateViewModel
+@{
+    ViewBag.Title = "Addbestelling";
+}
+
+
+<h2>Nieuwe bestelling</h2>
+
+<form asp-action="AddBestelling">
+    <div class="form-group">
+        <label asp-for="Id" class="control-label">Selecteer een klant:</label>
+        <select asp-for="Id" class="form-control" asp-items="Model.Klanten"></select>
+    </div>
+    <div></div>
+    <h4>Orderlijnen:</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Aantal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="orderLinesContainer">
+            @for (var i = 0; i < Model.OrderLijnen.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select asp-for="OrderLijnen[i].ProductID" class="form-control" asp-items="Model.Producten"></select>
+                    </td>
+                    <td>
+                        <input type="number" asp-for="OrderLijnen[i].Aantal" class="form-control" />
+                        <span asp-validation-for="OrderLijnen[i].Aantal" class="text-danger"></span>
+                    </td>
+                    <td>
+                        @if (i > 0)
+                        {
+                            <a href="#" class="btn btn-danger" onclick="removeOrderLine(this)">Verwijder</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="addOrderLine()">Voeg product toe</button>
+        <input type="submit" value="Bestelling toevoegen" class="btn btn-success" />
+    </div>
+</form>
+
+
+@section scripts {
+    <script>
+        // Function to populate the product options
+        function populateProductOptions(selectElement, products) {
+            for (var i = 0; i < products.length; i++) {
+                var option = document.createElement("option");
+                option.value = products[i].value;
+                option.text = products[i].text;
+                selectElement.appendChild(option);
+            }
+        }
+
+        // Function to add a new order line
+        function addOrderLine() {
+            var container = document.getElementById("orderLinesContainer");
+            var newIndex = container.children.length;
+
+            // Create the HTML elements for a new order line
+            var newRow = document.createElement("tr");
+            var productSelect = document.createElement("select");
+            productSelect.name = `OrderLijnen[${newIndex}].ProductID`;
+            productSelect.className = "form-control";
+
+            // Populate product options
+            var productOptions = @Html.Raw(Json.Serialize(Model.Producten));
+            populateProductOptions(productSelect, productOptions);
+
+            var aantalInput = document.createElement("input");
+            aantalInput.type = "number";
+            aantalInput.name = `OrderLijnen[${newIndex}].Aantal`;
+            aantalInput.className = "form-control";
+
+            var validationSpan = document.createElement("span");
+            validationSpan.className = "text-danger";
+            validationSpan.setAttribute("data-valmsg-for", `OrderLijnen[${newIndex}].Aantal`);
+
+            var removeLink = document.createElement("a");
+            removeLink.href = "#";
+            removeLink.className = "btn btn-danger";
+            removeLink.onclick = function() { removeOrderLine(this); };
+            removeLink.innerText = "Remove";
+
+            // Append the new elements to the row
+            newRow.appendChild(createTableCell(productSelect));
+            newRow.appendChild(createTableCell(aantalInput));
+            newRow.appendChild(createTableCell(validationSpan));
+            newRow.appendChild(createTableCell(removeLink));
+
+            // Append the row to the container
+            container.appendChild(newRow);
+
+            // Refresh validation to include new elements
+            var form = document.querySelector("form");
+            var validator = jQuery(form).data("validator");
+            validator.settings.ignore = "";
+        }
+
+        // Function to remove an order line
+        function removeOrderLine(button) {
+            var row = button.closest("tr");
+            row.remove();
+        }
+
+        // Helper function to create a table cell
+        function createTableCell(element) {
+            var cell = document.createElement("td");
+            cell.appendChild(element);
+            return cell;
+        }
+    </script>
+}
+       

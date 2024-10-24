@@ -1,0 +1,53 @@
+﻿@model KlantListViewModel
+@{
+	ViewData["Title"] = "Index";
+}
+
+<h2>Klanten</h2>
+<form asp-controller="Klant" asp-action="Search" method="get">
+	<div class="form-actions no-color">
+		<p>
+			Zoek op klant:
+			<input asp-for="KlantSearch">
+			<input type="submit" value="Zoeken" class="btn btn-primary" />
+			<a asp-controller="Klant" class="btn btn-primary" asp-action="Index">Terug naar volledige lijst</a>
+		</p>
+	</div>
+</form>
+
+
+<p> <a asp-action="Create" class="btn btn-primary">Create New</a></p>
+<table>
+	<thead>
+		<tr>
+			<td>
+				@Html.DisplayNameFor(v => v.Klanten[0].Naam)
+			</td>
+			<td>
+				@Html.DisplayNameFor(v => v.Klanten[0].Voornaam)
+			</td>
+			<td>
+				@Html.DisplayNameFor(v => v.Klanten[0].AangemaaktDatum)
+			</td>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var klant in Model.Klanten)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelitem => klant.Naam)
+				</td>
+				<td>
+					@Html.DisplayFor(modelitem => klant.Voornaam)
+				</td>
+				<td>
+					@Html.DisplayFor(modelitem => klant.AangemaaktDatum)
+				</td>
+				<td><a asp-action="Edit" asp-route-id="@klant.Id" class="btn btn-primary">Edit</a></td>
+				<td><a asp-action="Details" asp-route-id="@klant.Id" class="btn btn-primary">Details</a></td>
+				<td><a asp-action="Delete" asp-route-id="@klant.Id" class="btn btn-primary">Delete</a></td>
+			</tr>
+		}
+	</tbody>
+</table>
