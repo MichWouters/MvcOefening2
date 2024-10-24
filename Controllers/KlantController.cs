@@ -1,99 +1,93 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Interimkantoor.Data;
+using Interimkantoor.Models;
 
-namespace MVCDemo.Controllers
+namespace Interimkantoor.Controllers
 {
     public class KlantController : Controller
     {
         private readonly IUnitOfWork _context;
-        private readonly IMapper _mapper;
 
-        public KlantController(IUnitOfWork context, IMapper mapper)
+        public KlantController(IUnitOfWork context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        public async Task<ActionResult<IEnumerable<Klant>>> Index()
+        // GET: Klant
+        public async Task<IActionResult> Index()
         {
-            var klanten = await _context.KlantRepository.GetAllAsync();
-
-            KlantListViewModel model = new KlantListViewModel()
-            {
-                Klanten = klanten.ToList()
-            };
-            return View(model);
+            return View(await _context.KlantRepository.GetAllAsync());
         }
 
-        public async Task<IActionResult> Details(int id)
+        // GET: Klant/Details/5
+        public async Task<IActionResult> Details(string id)
         {
-            Klant? klant = await _context.KlantRepository.GetByIdAsync(id);
-            if (klant != null)
+            if (id == null)
             {
-                KlantDetailsViewModel vm = _mapper.Map<KlantDetailsViewModel>(klant);
-                return View(vm);
+                return NotFound();
             }
-            else
+
+            var klant = await _context.KlantRepository.GetByIdAsync(id);
+            if (klant == null)
             {
-                return RedirectToAction("Index");
+                return NotFound();
             }
+
+            return View(klant);
         }
 
-		public async Task<IActionResult> Search(KlantListViewModel viewModel)
-		{
-			if (!string.IsNullOrEmpty(viewModel.KlantSearch))
-			{
-                var klanten = await _context.KlantRepository.Find(x => x.Naam.Contains(viewModel.KlantSearch) || x.Voornaam.Contains(viewModel.KlantSearch) );
-				viewModel.Klanten = klanten.ToList();
-			}
-			else
-			{
-				var klanten = await _context.KlantRepository.GetAllAsync();
-				viewModel.Klanten = klanten.ToList();
-			}
-			return View("Index", viewModel);
-		}
-
-		public IActionResult Create()
+        // GET: Klant/Create
+        public IActionResult Create()
         {
             return View();
         }
 
+        // POST: Klant/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(KlantCreateViewModel viewModel)
+        public async Task<IActionResult> Create([Bind("Id,Naam,Voornaam,Gemeente,Postcode,Straat,Huisnummer,Bankrekeningnummer")] Klant klant)
         {
             if (ModelState.IsValid)
             {
-                Klant klant = _mapper.Map<Klant>(viewModel);
                 await _context.KlantRepository.AddAsync(klant);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            return View(viewModel);
+            return View(klant);
         }
 
-
-        public async Task<IActionResult> Edit(int id)
+        // GET: Klant/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
-            var klant = await _context.KlantRepository.GetByIdAsync(id);
-            if (klant != null)
+            if (id == null)
             {
-                KlantEditViewModel viewModel = _mapper.Map<KlantEditViewModel>(klant);
+                return NotFound();
+            }
 
-                return View(viewModel);
+            var klant = await _context.KlantRepository.GetByIdAsync(id);
+            if (klant == null)
+            {
+                return NotFound();
             }
-            else
-            {  
-                return RedirectToAction("Index"); 
-            }
+            return View(klant);
         }
 
-
+        // POST: Klant/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, KlantEditViewModel viewModel)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Naam,Voornaam,Gemeente,Postcode,Straat,Huisnummer,Bankrekeningnummer")] Klant klant)
         {
-            if (id != viewModel.Id)
+            if (id != klant.Id)
             {
                 return NotFound();
             }
@@ -102,14 +96,12 @@ namespace MVCDemo.Controllers
             {
                 try
                 {
-                    Klant klant = _mapper.Map<Klant>(viewModel);
                     _context.KlantRepository.Update(klant);
-                    _context.SaveChanges();
-
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_context.KlantRepository.GetByIdAsync(id) != null)
+                    if (await _context.KlantRepository.GetByIdAsync(klant.Id)!=null)
                     {
                         return NotFound();
                     }
@@ -117,38 +109,42 @@ namespace MVCDemo.Controllers
                     {
                         throw;
                     }
-
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            return View(viewModel);
+            return View(klant);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        // GET: Klant/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var klant = await _context.KlantRepository.GetByIdAsync(id);
             if (klant == null)
             {
                 return NotFound();
             }
 
-            KlantDeleteViewModel viewModel = _mapper.Map<KlantDeleteViewModel>(klant);
-            return View(viewModel);
+            return View(klant);
         }
 
+        // POST: Klant/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var klant = await _context.KlantRepository.GetByIdAsync(id);
             if (klant != null)
             {
                 _context.KlantRepository.Delete(klant);
-                _context.SaveChanges();
             }
 
-            return RedirectToAction("Index");
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

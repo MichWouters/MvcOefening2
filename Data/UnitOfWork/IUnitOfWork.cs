@@ -1,11 +1,14 @@
 ﻿
 
-namespace MVCDemo.Data.UnitOfWork
+namespace Interimkantoor.Data.UnitOfWork
 {
     public interface IUnitOfWork
     {
-        IBestellingRepository BestellingRepository { get; }
-        IGenericRepository<Klant> KlantRepository { get; }
-	    public void SaveChanges();
+        IKlantRepository KlantRepository { get; }
+	    IJobRepository JobRepository { get;  }
+
+        IGenericRepository<KlantJob> KlantJobRepository { get; }
+
+	    public Task SaveChangesAsync();
     }
 }

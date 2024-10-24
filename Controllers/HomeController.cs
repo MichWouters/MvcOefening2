@@ -1,26 +1,41 @@
+using Interimkantoor.Models;
 using Microsoft.AspNetCore.Mvc;
-using MVCDemo.Models;
 using System.Diagnostics;
 
-namespace MVCDemo.Controllers
+namespace Interimkantoor.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        //private IJobRepository _jobRepository;
+        private IUnitOfWork _unitOfWork;
+        private IMapper _mapper;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            IEnumerable<Job> modellen = await _unitOfWork.JobRepository.GetAllAsync();
+            List<JobDetailsViewModel> viewModellen = _mapper.Map<List<JobDetailsViewModel>>(modellen);
 
-        public IActionResult HelloView()
-        {
-            return View();
+            // Manuele mapping => Niet doen, tijdrovend en foutgevoelig
+            //foreach (var job in jobs)
+            //{
+            //    JobDetailsViewModel vm = new JobDetailsViewModel
+            //    {
+            //        Id = job.Id,
+            //        Omschrijving = job.Omschrijving,
+            //        AantalPlaatsen = job.AantalPlaatsen,
+            //    }
+            //}
+
+
+            return View(viewModellen);
         }
 
         public IActionResult Privacy()

@@ -1,42 +1,45 @@
 ﻿
-
-namespace MVCDemo.Data.UnitOfWork
+namespace Interimkantoor.Data.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly MVCDemoContext _context;
+        private readonly InterimkantoorContext _context;
 
-        private IBestellingRepository bestellingRepository;
-        private IGenericRepository<Klant> klantRepository;
+        private IKlantRepository klantRepository;
+        private IJobRepository jobRepository;
+        private IGenericRepository<KlantJob> klantJobRepository;
 
-        public UnitOfWork(MVCDemoContext context)
+        public UnitOfWork(InterimkantoorContext context)
         {
             _context = context;
         }
 
-        public IBestellingRepository BestellingRepository
+        public IKlantRepository KlantRepository
         {
             get
             {
-                if (this.bestellingRepository == null)
-                        this.bestellingRepository = new BestellingRepository(_context);
-                return bestellingRepository;
+                return klantRepository ??= new KlantRepository(_context);
             }
-        }
-
-        public IGenericRepository<Klant> KlantRepository
+        }            
+        
+        public IGenericRepository<KlantJob> KlantJobRepository
         {
             get
             {
-                if (this.klantRepository == null)
-				this.klantRepository = new GenericRepository<Klant>(_context);
-			return klantRepository;
-		    }
-        }
-
-        public void SaveChanges()
+                return klantJobRepository ??= new GenericRepository<KlantJob>(_context);
+            }
+        }       
+        public  IJobRepository JobRepository
         {
-            _context.SaveChanges();
+            get
+            {
+                return jobRepository ??= new JobRepository(_context);
+            }
+        }        
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
